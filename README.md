@@ -1,1 +1,1 @@
-GUI calculator written on Python using Tkinter
+GUI calculator with different number systems written on Python using Tkinter
