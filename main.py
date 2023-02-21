@@ -1,7 +1,7 @@
 import tkinter as tk
 
 SMALL_FONT_STYLE    = ("Arial", 16)
-LARGE_FONT_STYLE    = ("Arial", 40, "bold")
+LARGE_FONT_STYLE    = ("Arial", 30, "bold")
 DIGIT_FONT_STYLE    = ("Arial", 24, "bold")
 DEFAULT_FONT_STYLE  = ("Arial", 20)
 
@@ -17,7 +17,7 @@ class Calculator:
     def __init__(self):
         self.window = tk.Tk()
         # size of a standart resolution on iphone 8
-        self.window.geometry('375x667')
+        self.window.geometry('750x1334')
         # disable resizing for window
         self.window.resizable(0,0)
         # set a title in title bar
@@ -55,6 +55,8 @@ class Calculator:
         self.create_operator_buttons()
         # set resultant buttons
         self.create_special_buttons()
+        # set keyboard input
+        self.bind_keys()
 
 
     def create_display_labels(self):
@@ -115,12 +117,48 @@ class Calculator:
         button = tk.Button(self.buttons_frame, text="C", bg=LIGHT_BLUE, 
                             fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE, 
                             borderwidth=0, command=self.clear)
-        button.grid(row=0, column=1, columnspan=3, sticky=tk.NSEW)
+        button.grid(row=0, column=1, columnspan=1, sticky=tk.NSEW)
+
+    
+    def create_square_button(self):
+        button = tk.Button(self.buttons_frame, text="x\u00b2", bg=LIGHT_BLUE, 
+                            fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE, 
+                            borderwidth=0, command=self.square)
+        button.grid(row=0, column=2, sticky=tk.NSEW)
+
+
+    def create_square_root_button(self):
+        button = tk.Button(self.buttons_frame, text="\u221ax", bg=LIGHT_BLUE, 
+                            fg=LABEL_COLOR, font=DEFAULT_FONT_STYLE, 
+                            borderwidth=0, command=self.square_root)
+        button.grid(row=0, column=3, sticky=tk.NSEW)
+
+
+    def bind_keys(self):
+        self.window.bind("<Return>", lambda event: self.evaluate())
+        for key in self.digits:
+            self.window.bind(str(key),
+                             lambda event, digit=key: self.add_to_expression(digit))
+        for key in self.operations:
+            self.window.bind(str(key),
+                             lambda event, operator=key: self.append_operator(operator))
 
 
     def create_special_buttons(self):
         self.create_equals_button()
         self.create_clear_button()
+        self.create_square_button()
+        self.create_square_root_button()
+
+
+    def square(self):
+        self.current_expression = str(eval(f"{self.current_expression}**2"))
+        self.update_label()
+
+
+    def square_root(self):
+        self.current_expression = str(eval(f"{self.current_expression}**0.5"))
+        self.update_label()
 
 
     def append_operator(self, operator):
@@ -142,10 +180,13 @@ class Calculator:
         self.total_expression += self.current_expression
         self.update_total_label()
 
-        self.current_expression = str(eval(self.total_expression))
-        self.total_expression=''
-
-        self.update_label()
+        try:
+            self.current_expression = str(eval(self.total_expression))
+            self.total_expression=''
+        except Exception as e:
+            self.current_expression = "Error"
+        finally:
+            self.update_label()
 
 
     def add_to_expression(self, value):
@@ -154,11 +195,14 @@ class Calculator:
 
 
     def update_total_label(self):
-        self.total_label.config(text=self.total_expression)
+        expression = self.total_expression
+        for operator, symbol in self.operations.items():
+            expression = expression.replace(operator, f'{symbol}')
+        self.total_label.config(text=expression)
 
 
     def update_label(self):
-        self.label.config(text=self.current_expression)
+        self.label.config(text=self.current_expression[:10])
 
 
     # run our app
@@ -169,3 +213,4 @@ class Calculator:
 if __name__ == '__main__':
     calc = Calculator()
     calc.run()
+
