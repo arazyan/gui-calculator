@@ -1,11 +1,3 @@
-''' Useful
-
-        eval() function evaluates and returns a value of a valid python expression
-
-    eval('2*3+3') --> 9
-
-'''
-
 import tkinter as tk
 
 SMALL_FONT_STYLE    = ("Arial", 16)
